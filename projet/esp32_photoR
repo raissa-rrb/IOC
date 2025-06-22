@@ -1,0 +1,48 @@
+
+/* mailbox */
+enum {EMPTY, FULL}; 
+
+struct mailbox_s {
+  int state; 
+  int value;
+};
+
+struct mailbox_s mb_lum_led = { .state = EMPTY};
+
+* Lum_s */
+struct Lum_s {
+  int timer;             
+  unsigned long period;
+};
+
+void setup_lum( struct Lum_s * ctx, int timer, unsigned long period) {
+  ctx->timer = timer;
+  ctx->period = period;
+  Serial.begin(9600);                                     // initialisation du débit de la liaison série
+}
+
+void loop_lum(struct Lum_s *ctx, struct mailbox_s * mb, struct mailbox_s *mb2) {
+
+  if( mb->state != EMPTY) return;
+  //ne peut écrire que si la boite est vide
+  mb->value = map(analogRead(36), 0, 4095, 0, 100 );
+
+  //Serial.println(mb->value);
+  
+  //indique qu'elle a écrit
+  mb->state = FULL;
+
+  if( mb2->state != EMPTY) return;
+  mb2->value = map(analogRead(36), 0, 4095, 0, 100 );
+  mb2->state = FULL;
+}
+
+void setup(){
+ setup_lum(&lum, 2, 500000 );
+}
+
+void loop() {
+
+  loop_lum(&lum , &mb_lum_Oled , &mb_lum_led );
+
+}

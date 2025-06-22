@@ -1,0 +1,4 @@
+- main.c : juste un test assez complet de la hashmap
+- pour tester localement : 
+      - lancer sur un terminal : ./server 32000
+      - lancer sur l'autre : ./client localhost 32000 nom vote

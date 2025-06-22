@@ -1,0 +1,75 @@
+title, h1, p, input, header, footer, button{
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif ;  
+    color :rgb(222, 221, 255)
+}
+
+.center {
+    text-align: center;
+}
+
+body{
+    /* background-color: rgb(34,34,34); */
+    background-image: url("ioc1.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: rgb(0,0,0);
+    background-size: cover;
+
+}
+
+p
+{
+
+    font-size : 20px;
+
+}
+
+header
+{ 
+
+    text-align: center;
+    color: rgb(0, 0, 0);
+    padding: 75px;
+}
+
+footer{
+    text-align: center;
+    font-size :small;
+}
+
+form {
+    text-align: center;
+}
+button {
+    color : black;
+    background-color: rgb(223, 200, 250);
+    font-size: 19px ;
+}
+
+/* .button_on {
+    position: relative ;
+    left :455px;
+    top : 300px;
+}
+
+.button_off{
+    position: relative ;
+    left :540px;
+    top : 300px;
+} */
+
+#page-container {
+    position: relative;
+    min-height: 100vh;
+}
+
+#content-wrap {
+    padding-bottom: 2.5rem;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2.5rem;
+}
