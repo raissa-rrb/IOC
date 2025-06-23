@@ -55,22 +55,94 @@ Et le mapping donné :
     > Le tableau a[] contient les offsets pour la DDRAM, nous avons 4 lignes donc bien 4 offsets.
     > Pour chaque caractère, nous l'écrivons sur une ligne et si jamais nous arrivons à la fin de la ligne alors nous incrémentons **l** et passons à la ligne suivante. 
 
-void set_cursor(int x, int y){
 
-    int a[] = { 0, 0x40, 0x14, 0x54 }; //permet de choisir la ligne =>y
-    int i;
-    lcd_command(LCD_SETDDRAMADDR + a[y-1]); //on est sur la bonne ligne
+```
+void lcd_message(const char *txt)
+{
 
-    if(x > 19 ){
-        fprintf(stderr, "ERROR : column value is greater than diplsay length\n");
-        exit(1);
-    }
+    int a[] = { 0, 0x40, 0x14, 0x54 };
+    int len = 20;
+    int i, l;
 
-    /* on shift à droite ujusqu'à avoir la bonne colonne */
-    for(i = 0; i < x ; i++){
-        lcd_command(LCD_CURSORSHIFT | LCD_CS_MOVERIGHT);
+    
+    for (i = 0, l = 0; (l < 4) && (i < strlen(txt)); l++) {
+        lcd_command(LCD_SETDDRAMADDR + a[l]);
+        for (; (i < (l + 1) * len) && (i < strlen(txt)); i++) {
+            lcd_data(txt[i]);
+        }
     }
 }
+```
+- **a** contient les @ des 4 lignes du LCD
+- **len** : nb de caractères max par ligne
+- **i** : nb caractères écrit
+- tant que **l<4** et que **i< longueur de la chaine** 
+     - alors on écrit à la ligne **a[l]**
+    - tant que **i < (l+1)x len** => nb car écrit < nb car. max sur tout l'afficheur
+    et **i < longueur de la chaine**
+        - on écrit le caractère sur le LCD
+    - **i++**
+- **l++**
 
+> **On sort de la deuxième boucle si on a écrit 20 (ligne 0), 40 (ligne 1), 60 (ligne 3) ou 80 (ligne4) caractères et on incrémente l une fois qu'on en est sortis => on passe à la ligne suivante**
+> **On sort de la première boucle, et de la fonction, si l >4 ( on a 4 lignes max ) ou une fois qu'on a écrit tout les caracères de la chaine**
+
+#### Set cursor
+- On a une instruction pour le curseur du LCD : la colonne
+```
+#define LCD_CURSORSHIFT         0b00010000
+/* flags for display/cursor shift : combine with LCD_CURSORSHIFT */
+#define LCD_CS_DISPLAYMOVE      0b00001000
+#define LCD_CS_CURSORMOVE       0b00000000
+#define LCD_CS_MOVERIGHT        0b00000100
+#define LCD_CS_MOVELEFT         0b00000000
+```
+- Et pour la ligne on utilise **LCD_SETDDRAMADDR**
+```
+void lcd_set_cursor(int x, int y)
+{
+    /* 
+    * x = colonne
+    * y = ligne
+    */
+   int i;
+   int a[] = { 0, 0x40, 0x14, 0x54 };
+
+   /* ligne */
+   lcd_command(LCD_SETDDRAMADDR + a[y]);
+   
+   /* colonne */
+   for ( i = 0; i < x ; i++){
+        lcd_command(LCD_CURSORSHIFT | LCD_CS_MOVERIGHT); 
+   }
+
+}
+```
+:hand:  Il faut modifer la ligne **puis** la colonne. 
+
+**ok ça fonctionne pour des chaines qui tiennent sur une seule ligne sinon dès que ça dépasse on saut une ligne ( comportement par défaut ) mais on aimerait bien rester à la ligne d'en dessous**
+```
 void lcd_message(const char *txt)
+{
+
+    int a[] = { 0, 0x40, 0x14, 0x54 };
+    int len = 20;
+    int i, l, j;
+
+    
+    for (i = 0, l = 0; (l < 4) && (i < strlen(txt)); l++) {
+        //lcd_command(LCD_SETDDRAMADDR + a[ligne]);
+        if(l>0){
+            ligne++;
+            colonne = 0;
+            lcd_command(LCD_SETDDRAMADDR + a[ligne]);
+        }
+        //for (; (i < (l + 1) * len) && (i < strlen(txt)); i++) {
+        for(j =0; (j < (len - colonne)) && (i < strlen(txt)); i++,j++){
+            lcd_data(txt[i]);
+        }
+    }
+}
+```
+maintenant c'est réglé
     
